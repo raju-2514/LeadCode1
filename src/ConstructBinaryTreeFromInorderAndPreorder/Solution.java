@@ -1,68 +1,73 @@
 package April.ConstructBinaryTreeFromInorderAndPreorder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Solution {
-    private Map<Integer, Integer> inorderIndexMap;
-    private int preorderIndex;
-
     public TreeNode buildTree(int[] preorder, int[] inorder) {
-        inorderIndexMap = new HashMap<>();
-        preorderIndex = 0;
-
-        // Build a hashmap to store value -> index relations
+        Map<Integer, Integer> inorderIndexMap = new HashMap<>();
         for (int i = 0; i < inorder.length; i++) {
             inorderIndexMap.put(inorder[i], i);
         }
-
-        return buildTreeHelper(preorder, 0, inorder.length - 1);
+        return build(preorder, inorderIndexMap, 0, 0, inorder.length - 1);
     }
 
-    private TreeNode buildTreeHelper(int[] preorder, int left, int right) {
-        if (left > right) {
-            return null;
-        }
+    private TreeNode build(int[] preorder, Map<Integer, Integer> inMap,
+                           int preRootIndex, int inLeft, int inRight) {
+        if (inLeft > inRight) return null;
 
-        // Select the preorderIndex element as the root and increment it
-        int rootVal = preorder[preorderIndex++];
-        TreeNode root = new TreeNode(rootVal);
+        TreeNode root = new TreeNode(preorder[preRootIndex]);
+        int inRootIndex = inMap.get(preorder[preRootIndex]);
 
-        // Build left and right subtree
-        // Exclude inorderIndexMap[rootVal] element because it's the root
-        root.left = buildTreeHelper(preorder, left, inorderIndexMap.get(rootVal) - 1);
-        root.right = buildTreeHelper(preorder, inorderIndexMap.get(rootVal) + 1, right);
+        int leftTreeSize = inRootIndex - inLeft;
+
+        root.left = build(preorder, inMap, preRootIndex + 1, inLeft, inRootIndex - 1);
+        root.right = build(preorder, inMap, preRootIndex + leftTreeSize + 1, inRootIndex + 1, inRight);
 
         return root;
     }
-}
 
-// For testing purpose
-public static void main(String[] args) {
-    TreeNode outer = new TreeNode();
-    Solution sol = outer.new Solution();
+    // Function to return level-order traversal with 'null' for missing children
+    public List<String> treeToList(TreeNode root) {
+        List<String> result = new ArrayList<>();
+        if (root == null) return result;
 
-    int[] preorder1 = {3,9,20,15,7};
-    int[] inorder1 = {9,3,15,20,7};
-    TreeNode root1 = sol.buildTree(preorder1, inorder1);
-    printTree(root1);
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
 
-    System.out.println();
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            if (node != null) {
+                result.add(String.valueOf(node.val));
+                queue.offer(node.left);
+                queue.offer(node.right);
+            } else {
+                result.add("null");
+            }
+        }
 
-    int[] preorder2 = {-1};
-    int[] inorder2 = {-1};
-    TreeNode root2 = sol.buildTree(preorder2, inorder2);
-    printTree(root2);
-}
+        // Remove trailing "null"s
+        int i = result.size() - 1;
+        while (i >= 0 && result.get(i).equals("null")) {
+            result.remove(i--);
+        }
 
-// Helper function to print the tree (Preorder Traversal)
-public static void printTree(TreeNode root) {
-    if (root == null) {
-        System.out.print("null ");
-        return;
+        return result;
     }
-    System.out.print(root.val + " ");
-    printTree(root.left);
-    printTree(root.right);
 
+    // Main method for testing
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+
+        // Example 1
+        int[] preorder1 = {3, 9, 20, 15, 7};
+        int[] inorder1 = {9, 3, 15, 20, 7};
+        TreeNode tree1 = sol.buildTree(preorder1, inorder1);
+        System.out.println("Output: " + sol.treeToList(tree1));  // Output: [3, 9, 20, null, null, 15, 7]
+
+        // Example 2
+        int[] preorder2 = {-1};
+        int[] inorder2 = {-1};
+        TreeNode tree2 = sol.buildTree(preorder2, inorder2);
+        System.out.println("Output: " + sol.treeToList(tree2));  // Output: [-1]
+    }
 }
