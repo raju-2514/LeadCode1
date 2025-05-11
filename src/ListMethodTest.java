@@ -4,6 +4,7 @@ import May.PathSum.Solution;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class ListMethodTest {
@@ -20,7 +21,9 @@ public class ListMethodTest {
 
         System.out.println(result.getLast());
         System.out.println(result.subList(0,3));
-        System.out.println(Collection.sort(result));
+        Collections.sort(result);
+
+        result.Offer(12);
         return result;
     }
 
