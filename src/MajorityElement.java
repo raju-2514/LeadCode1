@@ -1,27 +1,29 @@
 package August;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MajorityElement {
-    public static int calculateMajorityElements(int[] num) {
-        int n = num.length;
-        int count = 0;
-        int maxvalue=0;
-        for (int i = 0; i < n; i++) {
-         for(int j=1;j<n;j++){
-             if(num[i]==num[j]){
-                 count++;
-             }
-         }
+    public static int calculateMajorityElements(int[] nums) {
+        Map<Integer, Integer> countMap = new HashMap<>();
+        int majorityCount = nums.length / 2;
 
-            maxvalue=Math.max(maxvalue,count);
+        for (int num : nums) {
+            int count = countMap.getOrDefault(num, 0) + 1;
+            countMap.put(num, count);
+
+            if (count > majorityCount) {
+                return num;
+            }
         }
-        return maxvalue;
 
+        return -1;
     }
 
     public static void main(String[] args) {
-        int[] arr = {3, 2, 3};
+        int[] arr1 = {3, 2, 3};
         int[] arr2 = {2, 2, 1, 1, 1, 2, 2};
-        System.out.println(calculateMajorityElements(arr));
+        System.out.println(calculateMajorityElements(arr1));
         System.out.println(calculateMajorityElements(arr2));
     }
 }
