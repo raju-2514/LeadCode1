@@ -1,65 +1,53 @@
-package August;
+package September;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class CourseScheduleII {
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        // Step 1: Build graph and indegree array
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < numCourses; i++) {
+            graph.add(new ArrayList<>());
+        }
 
-       public int[] findOrder(int numCourses, int[][] prerequisites) {
-       // Graph representation
-       List<List<Integer>> graph = new ArrayList<>();
-       for (int i = 0; i < numCourses; i++) {
-           graph.add(new ArrayList<>());
-       }
+        int[] indegree = new int[numCourses];
+        for (int[] pre : prerequisites) {
+            int course = pre[0], prereq = pre[1];
+            graph.get(prereq).add(course);
+            indegree[course]++;
+        }
 
-       // In-degree array
-       int[] inDegree = new int[numCourses];
-       for (int[] pre : prerequisites) {
-           int course = pre[0];
-           int prereq = pre[1];
-           graph.get(prereq).add(course);
-           inDegree[course]++;
-       }
+        // Step 2: Queue for nodes with indegree 0
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (indegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
 
-       // Queue for BFS
-       Queue<Integer> queue = new LinkedList<>();
-       for (int i = 0; i < numCourses; i++) {
-           if (inDegree[i] == 0) queue.offer(i);
-       }
+        // Step 3: Process nodes
+        int[] order = new int[numCourses];
+        int index = 0;
 
-       int[] order = new int[numCourses];
-       int index = 0;
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            order[index++] = curr;
 
-       while (!queue.isEmpty()) {
-           int current = queue.poll();
-           order[index++] = current;
+            for (int neighbor : graph.get(curr)) {
+                indegree[neighbor]--;
+                if (indegree[neighbor] == 0) {
+                    queue.offer(neighbor);
+                }
+            }
+        }
 
-           for (int next : graph.get(current)) {
-               inDegree[next]--;
-               if (inDegree[next] == 0) {
-                   queue.offer(next);
-               }
-           }
-       }
-
-       // If not all courses were processed, return empty array
-       if (index != numCourses) return new int[0];
-       return order;
-   }
-
-       // Test
-       public static void main(String[] args) {
-       CourseScheduleII cs = new CourseScheduleII();
-
-       int numCourses1 = 2;
-       int[][] prerequisites1 = {{1,0}};
-       System.out.println(Arrays.toString(cs.findOrder(numCourses1, prerequisites1))); // [0,1]
-
-       int numCourses2 = 4;
-       int[][] prerequisites2 = {{1,0},{2,0},{3,1},{3,2}};
-       System.out.println(Arrays.toString(cs.findOrder(numCourses2, prerequisites2))); // [0,1,2,3] or [0,2,1,3]
-
-       int numCourses3 = 1;
-       int[][] prerequisites3 = {};
-       System.out.println(Arrays.toString(cs.findOrder(numCourses3, prerequisites3))); // [0]
-   }
+        // Step 4: Check if all courses are taken
+        if (index == numCourses) {
+            return order;
+        }
+        return new int[0]; // cycle exists
+    }
 }
