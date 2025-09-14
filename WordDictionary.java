@@ -1,25 +1,22 @@
-package August;
+package September;
 
 public class WordDictionary {
-    private TrieNode root;
-
-    // TrieNode class
-    private static class TrieNode {
+    private class TrieNode {
         TrieNode[] children;
         boolean isEnd;
 
         public TrieNode() {
-            children = new TrieNode[26];
+            children = new TrieNode[26]; // for lowercase letters a-z
             isEnd = false;
         }
     }
 
-    // Constructor
+    private TrieNode root;
+
     public WordDictionary() {
         root = new TrieNode();
     }
 
-    // Add word to Trie
     public void addWord(String word) {
         TrieNode node = root;
         for (char ch : word.toCharArray()) {
@@ -32,43 +29,34 @@ public class WordDictionary {
         node.isEnd = true;
     }
 
-    // Search with '.' support
     public boolean search(String word) {
-        return dfsSearch(word, 0, root);
+        return dfs(word, 0, root);
     }
 
-    private boolean dfsSearch(String word, int index, TrieNode node) {
-        if (node == null) return false;
-
-        // If we reached the end of the word
-        if (index == word.length()) return node.isEnd;
+    private boolean dfs(String word, int index, TrieNode node) {
+        if (index == word.length()) {
+            return node.isEnd;
+        }
 
         char ch = word.charAt(index);
 
         if (ch == '.') {
-            // Try all possibilities
+            // try all possible children
             for (TrieNode child : node.children) {
-                if (child != null && dfsSearch(word, index + 1, child)) {
+                if (child != null && dfs(word, index + 1, child)) {
                     return true;
                 }
             }
             return false;
         } else {
-            int i = ch - 'a';
-            return dfsSearch(word, index + 1, node.children[i]);
+            int pos = ch - 'a';
+            if (node.children[pos] == null) {
+                return false;
+            }
+            return dfs(word, index + 1, node.children[pos]);
         }
     }
 
-    // Test
-    public static void main(String[] args) {
-        WordDictionary wordDictionary = new WordDictionary();
-        wordDictionary.addWord("bad");
-        wordDictionary.addWord("dad");
-        wordDictionary.addWord("mad");
 
-        System.out.println(wordDictionary.search("pad")); // false
-        System.out.println(wordDictionary.search("bad")); // true
-        System.out.println(wordDictionary.search(".ad")); // true
-        System.out.println(wordDictionary.search("b..")); // true
-    }
+    
 }
