@@ -1,4 +1,4 @@
-package December.CountCompleteTreeNode;
+package December;
 
 public class RectangleArea {
     public int computeArea(int ax1, int ay1, int ax2, int ay2,
